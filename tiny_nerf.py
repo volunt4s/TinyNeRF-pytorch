@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -10,6 +9,9 @@ torch.set_default_dtype(torch.float32)
 L_embed = 6
 
 class NeRF(torch.nn.Module):
+    """
+    NeRF MLP model
+    """
     def __init__(self, filter_size=128, L_embed=6):
         super(NeRF, self).__init__()
         self.layer1 = torch.nn.Linear(3 + 3*2*L_embed, filter_size)
@@ -25,6 +27,9 @@ class NeRF(torch.nn.Module):
 
 
 def posenc(x):
+    """
+    Positional encoding
+    """
     rets = [x]
     for i in range(L_embed):
         for fn in [torch.sin, torch.cos]:
@@ -34,6 +39,9 @@ def posenc(x):
 embed_fn = posenc
 
 def get_rays(H, W, focal, c2w):
+    """
+    Get ray origin, direction to each image pixels based on camera pose
+    """
     def meshgrid_xy(tensor1, tensor2):
         i, j = torch.meshgrid(tensor1, tensor2, indexing="ij")
         return i.transpose(-1, -2), j.transpose(-1, -2)
@@ -48,6 +56,9 @@ def get_rays(H, W, focal, c2w):
     return rays_o, rays_d
 
 def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
+    """
+    Volume rendering
+    """
     def batchify(fn, chunk=1024*32):
         return lambda inputs : torch.cat([fn(inputs[i:i+chunk]) for i in range(0, inputs.shape[0], chunk)], dim=0)
     
@@ -85,7 +96,7 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     return rgb_map, depth_map, acc_map
 
 if __name__ == "__main__":
-    data = np.load('vanila_nerf/tiny_nerf_data.npz')
+    data = np.load('tiny_nerf_data.npz')
     images = data['images']
     poses = data['poses']
     focal = data['focal']
@@ -119,7 +130,6 @@ if __name__ == "__main__":
     plot_image = True
 
     for i in tqdm(range(N_iters)):
-        t = time.time()
         img_i = np.random.randint(images.shape[0])
         target = images[img_i].to(device)
         pose = poses[img_i].to(device)
