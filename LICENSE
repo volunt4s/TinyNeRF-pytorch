@@ -22,8 +22,9 @@ SOFTWARE.
 
 ===========================
 Reproduce license statement
-Thanks to Krishna Murthy, yenchenlin
+Thanks to bmild, Krishna Murthy, yenchenlin
 
+(Original NeRF)
 MIT License
 
 Copyright (c) 2020 bmild
@@ -46,6 +47,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+(Tiny NeRF pytorch)
 MIT License
 
 Copyright (c) 2020 Krishna Murthy
@@ -68,6 +70,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+(NeRF pytorch)
 MIT License
 
 Copyright (c) 2020 yenchenlin
