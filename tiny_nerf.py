@@ -96,7 +96,7 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     return rgb_map, depth_map, acc_map
 
 if __name__ == "__main__":
-    data = np.load('tiny_nerf_data.npz')
+    data = np.load('data/tiny_nerf_data.npz')
     images = data['images']
     poses = data['poses']
     focal = data['focal']

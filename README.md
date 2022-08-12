@@ -1,5 +1,5 @@
 # TinyNeRF-pytorch
-Pytorch implementation of optimizing a tiny Neural Radiance Field ([NeRF](https://arxiv.org/abs/2003.08934))
+Pytorch implementation of optimizing a tiny Neural Radiance Field ([NeRF paper](https://arxiv.org/abs/2003.08934))
 
 Code structure is fully based on [Original tiny NeRF code](https://colab.research.google.com/github/bmild/nerf/blob/master/tiny_nerf.ipynb#scrollTo=lLDTVWKq7-ei) using Tensorflow
 
