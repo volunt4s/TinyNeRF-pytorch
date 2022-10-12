@@ -47,10 +47,10 @@ def get_rays(H, W, focal, c2w):
         return i.transpose(-1, -2), j.transpose(-1, -2)
     
     i, j = meshgrid_xy(
-        torch.arange(W, dtype=torch.float32),
-        torch.arange(H, dtype=torch.float32)
+        torch.arange(W, dtype=torch.float32).to(device),
+        torch.arange(H, dtype=torch.float32).to(device)
     )
-    dirs = torch.stack([(i-W*0.5)/focal, -(j-H*0.5)/focal, -torch.ones_like(i)], dim=-1)
+    dirs = torch.stack([(i-W*0.5)/focal, -(j-H*0.5)/focal, -torch.ones_like(i)], dim=-1).to(device)
     rays_d = torch.sum(dirs[..., None, :] * c2w[:3, :3], dim=-1)
     rays_o = c2w[:3, -1].expand(rays_d.shape)
     return rays_o, rays_d
@@ -69,9 +69,9 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
         return cumprod
 
     # Compute 3D query points
-    z_vals = torch.linspace(near, far, N_samples)
+    z_vals = torch.linspace(near, far, N_samples).to(device)
     if rand:
-        z_vals = z_vals + torch.rand(list(rays_o.shape[:-1]) + [N_samples]) * (far-near)/N_samples
+        z_vals = z_vals + torch.rand(list(rays_o.shape[:-1]) + [N_samples]).to(device) * (far-near)/N_samples
     pts = rays_o[..., None, :] + rays_d[..., None, :] * z_vals[..., :, None]
 
     # Run network
@@ -85,7 +85,7 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     rgb = torch.sigmoid(raw[..., :3])
 
     # Do volume rendering
-    dists = torch.cat([z_vals[..., 1:] - z_vals[..., :-1], torch.tensor([1e10]).expand(z_vals[..., :1].shape)], dim=-1)
+    dists = torch.cat([z_vals[..., 1:] - z_vals[..., :-1], torch.tensor([1e10], device=device).expand(z_vals[..., :1].shape)], dim=-1)
     alpha = 1.0 - torch.exp(-sigma_a * dists)
     weights = alpha * exclusive_cumprod(1.0-alpha + 1e-10)
 
@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
                 plt.figure(figsize=(10, 4))
                 plt.subplot(121)
-                plt.imshow(rgb.detach().numpy())
+                plt.imshow(rgb.cpu().detach().numpy())
                 plt.title(f"Iteration {i}")
                 plt.subplot(122)
                 plt.plot(iternums, psnrs)
@@ -166,9 +166,9 @@ if __name__ == "__main__":
     
     print("Done")
 
-    print("Video save start")
     save_video = True
     if save_video:
+        print("Video save start")
         import imageio
 
         trans_t = lambda t : np.array([
