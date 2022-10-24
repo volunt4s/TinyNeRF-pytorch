@@ -88,7 +88,6 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     dists = torch.cat([z_vals[..., 1:] - z_vals[..., :-1], torch.tensor([1e10], device=device).expand(z_vals[..., :1].shape)], dim=-1)
     alpha = 1.0 - torch.exp(-sigma_a * dists)
     weights = alpha * exclusive_cumprod(1.0-alpha + 1e-10)
-
     rgb_map = torch.sum(weights[..., None] * rgb, dim=-2)
     depth_map = torch.sum(weights * z_vals, dim=-1)
     acc_map = torch.sum(weights, dim=-1)
@@ -96,7 +95,7 @@ def render_rays(network_fn, rays_o, rays_d, near, far, N_samples, rand=False):
     return rgb_map, depth_map, acc_map
 
 if __name__ == "__main__":
-    data = np.load('data/tiny_nerf_data.npz')
+    data = np.load('tiny_nerf_data.npz')
     images = data['images']
     poses = data['poses']
     focal = data['focal']
@@ -114,7 +113,7 @@ if __name__ == "__main__":
 
     # Hyperparameters
     N_samples = 64
-    N_iters = 2000
+    N_iters = 10000
     psnrs = []
     iternums = []
     i_plot = 100
@@ -152,13 +151,17 @@ if __name__ == "__main__":
                 psnrs.append(psnr.item())
                 iternums.append(i)
 
-                plt.figure(figsize=(10, 4))
-                plt.subplot(121)
+                plt.figure(figsize=(12, 4))
+                plt.subplot(131)
                 plt.imshow(rgb.cpu().detach().numpy())
                 plt.title(f"Iteration {i}")
-                plt.subplot(122)
+                plt.subplot(132)
                 plt.plot(iternums, psnrs)
                 plt.title("PSNR")
+                plt.subplot(133)
+                plt.imshow(depth.cpu().detach().numpy(), cmap="gray")
+                plt.title("Depth Map")
+
                 # Auto close
                 plt.show(block=False)
                 plt.pause(1)
@@ -166,7 +169,7 @@ if __name__ == "__main__":
     
     print("Done")
 
-    save_video = True
+    save_video = False
     if save_video:
         print("Video save start")
         import imageio
